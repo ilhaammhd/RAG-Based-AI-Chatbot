@@ -1,0 +1,133 @@
+Create Database:
+
+CREATE DATABASE KnowledgeBaseChatbot;
+GO
+
+USE KnowledgeBaseChatbot;
+GO
+
+------------
+Categories Table:
+CREATE TABLE kb_categories (
+    category_id INT IDENTITY(1,1) PRIMARY KEY,
+    category_name VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    is_active BIT DEFAULT 1,
+    created_at DATETIME DEFAULT GETDATE()
+);
+
+INSERT INTO kb_categories (category_name, description) VALUES
+('SQL Server', 'Microsoft SQL Server related issues'),
+('Python', 'Python programming and automation'),
+('Email Automation', 'Email scanning and processing'),
+('DevOps', 'Deployment and server management'),
+('Security', 'Authentication and authorization topics');
+
+----
+Users Table
+CREATE TABLE kb_users (
+    user_id INT IDENTITY(1,1) PRIMARY KEY,
+    full_name VARCHAR(100),
+    email VARCHAR(150),
+    role VARCHAR(50),
+    is_active BIT DEFAULT 1,
+    created_at DATETIME DEFAULT GETDATE()
+);
+
+INSERT INTO kb_users (full_name, email, role) VALUES
+('Vinay Krishna Reddy', 'vinay@example.com', 'Admin'),
+('Srini Reddy', 'srini@example.com', 'Author'),
+('Anil Kumar', 'anil@example.com', 'Author'),
+('Meena Sharma', 'meena@example.com', 'Reviewer'),
+('Chatbot System', 'bot@system.com', 'System');
+--------------------
+Articles Table:
+
+CREATE TABLE kb_articles (
+    article_id INT IDENTITY(1,1) PRIMARY KEY,
+    title VARCHAR(200),
+    content VARCHAR(MAX),
+    category_id INT,
+    author_id INT,
+    status VARCHAR(20) DEFAULT 'Published',
+    created_at DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (category_id) REFERENCES kb_categories(category_id),
+    FOREIGN KEY (author_id) REFERENCES kb_users(user_id)
+);
+
+INSERT INTO kb_articles (title, content, category_id, author_id) VALUES
+('How to create database in SQL Server',
+ 'Use CREATE DATABASE command followed by database name.', 1, 2),
+
+('Fix login failed for user error',
+ 'Check SQL authentication mode and user permissions.', 1, 3),
+
+('Using TVP in SQL Server',
+ 'Table Valued Parameters allow passing table data to stored procedures.', 1, 2),
+
+('Python read emails using IMAP',
+ 'Use imaplib and email modules to read inbox emails.', 2, 2),
+
+('Download email attachments in Python',
+ 'Loop through email parts and save attachments to disk.', 2, 3),
+
+('Separate PO and Invoice emails',
+ 'Filter emails based on sender and subject.', 3, 1),
+
+('Gmail app password setup',
+ 'Enable 2FA and generate app password in Google account.', 3, 1),
+
+('Deploy Flask on Windows Server',
+ 'Use IIS or run Flask behind reverse proxy.', 4, 3),
+
+('Open firewall port in Windows',
+ 'Allow inbound rule for required port in firewall.', 4, 2),
+
+('JWT authentication basics',
+ 'JWT tokens contain claims and expiration details.', 5, 4),
+
+('Secure API with JWT',
+ 'Use access tokens and refresh tokens.', 5, 4),
+
+('Handling expired JWT tokens',
+ 'Refresh token or re-login user.', 5, 3),
+
+('SQL indexing basics',
+ 'Indexes improve query performance but increase storage.', 1, 2),
+
+('Python virtual environments',
+ 'Use venv or conda to isolate dependencies.', 2, 3),
+
+('Email sender-based filtering',
+ 'Check From address to route emails correctly.', 3, 1);
+
+---------
+Article Feedback Table
+
+CREATE TABLE kb_article_feedback (
+    feedback_id INT IDENTITY(1,1) PRIMARY KEY,
+    article_id INT,
+    rating INT CHECK (rating BETWEEN 1 AND 5),
+    comment VARCHAR(255),
+    created_at DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (article_id) REFERENCES kb_articles(article_id)
+);
+
+INSERT INTO kb_article_feedback (article_id, rating, comment) VALUES
+(1, 5, 'Very clear explanation'),
+(2, 4, 'Helpful but needs examples'),
+(4, 5, 'Worked perfectly'),
+(6, 4, 'Solved our PO issue'),
+(9, 3, 'More screenshots needed'),
+(11, 5, 'Good security overview');
+
+
+-----------
+Relationship Overview
+
+kb_categories 1 ────∞ kb_articles
+kb_users      1 ────∞ kb_articles
+kb_articles   1 ────∞ kb_article_feedback
+
+
+
